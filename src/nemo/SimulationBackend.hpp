@@ -22,11 +22,6 @@ namespace nemo {
 class Network;
 class Configuration;
 
-#ifdef NEMO_MPI_ENABLED
-		namespace mpi {
-			class Worker;
-		}
-#endif
 
 /*! \class SimulationBackend
  *
@@ -151,10 +146,6 @@ class NEMO_BASE_DLL_PUBLIC SimulationBackend : public Simulation
 		SimulationBackend() { };
 
 	private :
-
-#ifdef NEMO_MPI_ENABLED
-friend class nemo::mpi::Worker;
-#endif
 
 		/* Disallow copying of SimulationBackend object */
 		SimulationBackend(const Simulation&);

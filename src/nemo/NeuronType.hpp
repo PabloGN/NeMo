@@ -14,11 +14,6 @@
 #include <boost/filesystem.hpp>
 #include <nemo/config.h>
 
-#ifdef NEMO_MPI_ENABLED
-#include <boost/serialization/serialization.hpp>
-#include <boost/mpi/datatype.hpp>
-#endif
-
 namespace nemo {
 
 /*! \brief General neuron type
@@ -38,70 +33,70 @@ class NEMO_BASE_DLL_PUBLIC NeuronType
 {
 	public :
 
-	/*! Initialise a neuron type from a neuron type description file, in
-	 * .ini format located in one of NeMo's plugin directories */
-	explicit NeuronType(const std::string& name);
+		/*! Initialise a neuron type from a neuron type description file, in
+		 * .ini format located in one of NeMo's plugin directories */
+		explicit NeuronType(const std::string& name);
 
-	/* \return number of floating point parameters */
-	size_t parameterCount() const {return m_nParam;}
+		/* \return number of floating point parameters */
+		size_t parameterCount() const { return m_nParam; }
 
-	/* \return number of floating point state variables */
-	size_t stateVarCount() const {return m_nState;}
+		/* \return number of floating point state variables */
+		size_t stateVarCount() const { return m_nState; }
 
-	/*! Return the name of the neuron model
-	 *
-	 * This should match the name of the plugin which implements this
-	 * neuron type */
-	std::string name() const {return m_name;}
+		/*! Return the name of the neuron model
+		 *
+		 * This should match the name of the plugin which implements this
+		 * neuron type */
+		std::string name() const { return m_name; }
 
-	/*! Return the index of the state variable representing the membrane potential */
-	unsigned membranePotential() const {return m_membranePotential;}
+		/*! Return the index of the state variable representing the membrane potential */
+		unsigned membranePotential() const { return m_membranePotential; }
 
-	bool usesNormalRNG() const {return m_nrand;}
+		bool usesNormalRNG() const { return m_nrand; }
 
-	/*! How much history (of the state) do we need? In a first order system
-	 * only the latest state is available. In a second order system, a
-	 * double buffer is used. The \it previous state is available to the
-	 * whole system, whereas the current state is available to some subset
-	 * of the system (e.g. a thread). */
-	unsigned stateHistory() const {return m_stateHistory;}
+		/*! How much history (of the state) do we need? In a first order system
+		 * only the latest state is available. In a second order system, a
+		 * double buffer is used. The \it previous state is available to the
+		 * whole system, whereas the current state is available to some subset
+		 * of the system (e.g. a thread). */
+		unsigned stateHistory() const { return m_stateHistory; }
 
-	bool usesRcmSources() const {return m_rcmSources;}
-	bool usesRcmDelays() const {return m_rcmDelays;}
-	bool usesRcmForward() const {return m_rcmForward;}
-	bool usesRcmWeights() const {return m_rcmWeights;}
+		bool usesRcmSources() const { return m_rcmSources; }
+		bool usesRcmDelays()  const { return m_rcmDelays;  }
+		bool usesRcmForward()  const { return m_rcmForward;  }
+		bool usesRcmWeights() const { return m_rcmWeights; }
 
-	const boost::filesystem::path& pluginDir() const {return m_pluginDir;}
+		const boost::filesystem::path& pluginDir() const { return m_pluginDir; }
 
 	private :
 
-	size_t m_nParam;
-	size_t m_nState;
-	std::string m_name;
+		size_t m_nParam;
+		size_t m_nState;
+		std::string m_name;
 
-	unsigned m_membranePotential;
+		unsigned m_membranePotential;
 
-	/*! Does this neuron type require a per-neuron gaussian random number
-	 * generator? */
-	bool m_nrand;
+		/*! Does this neuron type require a per-neuron gaussian random number
+		 * generator? */
+		bool m_nrand;
 
-	/* Fields of the reverse connectivity matrix */
-	bool m_rcmSources;
-	bool m_rcmDelays;
-	bool m_rcmForward;
-	bool m_rcmWeights;
+		/* Fields of the reverse connectivity matrix */
+		bool m_rcmSources;
+		bool m_rcmDelays;
+		bool m_rcmForward;
+		bool m_rcmWeights;
 
-	/*! How much history (of the state) do we need? In a first order system
-	 * only the latest state is available. In a second order system, a
-	 * double buffer is used. The \it previous state is available to the
-	 * whole system, whereas the current state is available to some subset
-	 * of the system (e.g. a thread). */
-	unsigned m_stateHistory;
+		/*! How much history (of the state) do we need? In a first order system
+		 * only the latest state is available. In a second order system, a
+		 * double buffer is used. The \it previous state is available to the
+		 * whole system, whereas the current state is available to some subset
+		 * of the system (e.g. a thread). */
+		unsigned m_stateHistory;
 
-	/*! Directory where .ini file was found */
-	boost::filesystem::path m_pluginDir;
+		/*! Directory where .ini file was found */
+		boost::filesystem::path m_pluginDir;
 
-	void parseConfigurationFile(const std::string& name);
+		void parseConfigurationFile(const std::string& name);
 };
 
 }

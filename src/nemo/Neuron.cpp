@@ -28,6 +28,8 @@ Neuron::set(float param[], float state[])
 	std::copy(state, state + m_state.size(), m_state.begin());
 }
 
+
+
 float
 Neuron::getParameter(size_t i) const
 {

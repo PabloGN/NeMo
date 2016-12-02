@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <boost/mpi/timer.hpp>
-#include <stdio.h>
 
 namespace nemo {
 	namespace mpi {

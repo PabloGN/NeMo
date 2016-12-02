@@ -13,7 +13,7 @@ CMAKE_POLICY(SET CMP0015 NEW)
 # root of the build
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src/nemo/cuda)
 
-OPTION(NEMO_CUDA_ENABLED "Enabled simulation on CUDA devices" OFF)
+OPTION(NEMO_CUDA_ENABLED "Enabled simulation on CUDA devices" ON)
 
 IF(NEMO_CUDA_ENABLED)
 	OPTION(NEMO_CUDA_DYNAMIC_LOADING "Load the CUDA backend dynamically" ON)
@@ -28,11 +28,11 @@ LIST(APPEND BOOST_COMPONENTS date_time filesystem program_options system)
 # TODO: move MPI-related libraries to mpi directory
 OPTION(NEMO_MPI_ENABLED "Create MPI-enabled simulation" OFF)
 IF(NEMO_MPI_ENABLED)
-	LIST(APPEND BOOST_COMPONENTS mpi serialization thread log_setup log)
+	LIST(APPEND BOOST_COMPONENTS mpi serialization)
 	LIST(APPEND DIRS "mpi")
-	OPTION(NEMO_MPI_DEBUG_TRACE "Enable debug trace for MPI backend" ON)
+	OPTION(NEMO_MPI_DEBUG_TRACE "Enable debug trace for MPI backend" OFF)
 	OPTION(NEMO_MPI_DEBUG_TIMING "Add detailed timing of MPI operations" OFF)
-	OPTION(NEMO_MPI_COMMUNICATION_COUNTERS "Add packet counting and reporting" ON)
+	OPTION(NEMO_MPI_COMMUNICATION_COUNTERS "Add packet counting and reporting" OFF)
 ENDIF(NEMO_MPI_ENABLED)
 
 
@@ -45,7 +45,7 @@ IF(NEMO_EXAMPLES_ENABLED)
 ENDIF(NEMO_EXAMPLES_ENABLED)
 
 
-OPTION(NEMO_TESTS_ENABLED "Build testsuite" ON)
+OPTION(NEMO_TESTS_ENABLED "Build testsuite" OFF)
 IF(NEMO_TESTS_ENABLED)
 	LIST(APPEND DIRS test)
 ENDIF(NEMO_TESTS_ENABLED)
@@ -75,8 +75,8 @@ ENDIF(WIN32 OR APPLE)
 # - smart ptr: 1.23.0
 # - unordered: 1.36.0
 
-FIND_PACKAGE(Boost 1.36 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
-ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
+FIND_PACKAGE(Boost 1.36.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+
 
 # On windows just put everyting in one directory
 SET(INSTALL_INCLUDE_DIR include)

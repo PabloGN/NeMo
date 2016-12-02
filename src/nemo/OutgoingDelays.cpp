@@ -42,9 +42,7 @@ OutgoingDelays::begin(nidx_t source) const
 {
 	boost::unordered_map<nidx_t, std::vector<delay_t> >::const_iterator found = m_data.find(source);
 	if(found == m_data.end()) {
-		std::ostringstream oss;
-		oss << "OutgoingDelays::begin - Invalid source neuron for source = " << source;
-		throw nemo::exception(NEMO_INVALID_INPUT, oss.str());
+		throw nemo::exception(NEMO_INVALID_INPUT, "Invalid source neuron");
 	}
 	return found->second.begin();
 }
@@ -56,9 +54,7 @@ OutgoingDelays::end(nidx_t source) const
 {
 	boost::unordered_map<nidx_t, std::vector<delay_t> >::const_iterator found = m_data.find(source);
 	if(found == m_data.end()) {
-		std::ostringstream oss;
-		oss << "OutgoingDelays::end - Invalid source neuron for source = " << source;
-		throw nemo::exception(NEMO_INVALID_INPUT, oss.str());
+		throw nemo::exception(NEMO_INVALID_INPUT, "Invalid source neuron");
 	}
 	return found->second.end();
 }

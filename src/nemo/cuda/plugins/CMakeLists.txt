@@ -18,6 +18,3 @@ PLUGIN(Izhikevich)
 PLUGIN(IzhikevichRS)
 PLUGIN(IF_curr_exp)
 PLUGIN(Kuramoto)
-PLUGIN(QIF)
-PLUGIN(HH)
-

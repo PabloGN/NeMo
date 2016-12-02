@@ -16,8 +16,6 @@
 #include "NeuronType.hpp"
 #include "exception.hpp"
 #include "Plugin.hpp"
-#include<string>
-#include <vector>
 
 
 namespace nemo {
@@ -138,7 +136,7 @@ NeuronType::parseConfigurationFile(const std::string& name)
 
 	try {
 		po::variables_map vm;
-		po::store(po::parse_config_file(file, desc, true), vm);
+		po::store(po::parse_config_file(file, desc), vm);
 		po::notify(vm);
 
 		m_nParam = getRequired<unsigned>(vm, "parameters", filename);

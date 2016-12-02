@@ -1,7 +1,6 @@
 #include "SpikeQueue.hpp"
 
 #include <cassert>
-#include <stdexcept>
 
 namespace nemo {
 	namespace mpi {
@@ -14,16 +13,13 @@ SpikeQueue::SpikeQueue(delay_t maxDelay) :
 	;
 }
 
-unsigned SpikeQueue::size() const {
-	return m_queue.size();
-}
 
 unsigned
 SpikeQueue::slot(unsigned delay) const
 {
 	unsigned sz = m_queue.size();
 	//! \todo throw here instead
-	//assert(delay < sz);
+	assert(delay < sz);
 	unsigned entry = m_current + delay;
 	return entry >= sz ? entry - sz : entry;
 }
@@ -32,11 +28,7 @@ SpikeQueue::slot(unsigned delay) const
 void
 SpikeQueue::enqueue(nidx_t source, delay_t delay, delay_t elapsed)
 {
-	unsigned index = slot(delay-elapsed);
-	if(index < 0 || index >= m_queue.size())
-		throw std::runtime_error("SpikeQueue index out of bounds.");
-
-	m_queue.at(index).push_back(arrival(source, delay));
+	m_queue.at(slot(delay-elapsed)).push_back(arrival(source, delay));
 }
 
 

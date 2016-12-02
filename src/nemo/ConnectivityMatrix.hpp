@@ -82,9 +82,7 @@ struct AxonTerminalAux;
  * Data in this class is organised for optimal cache performance. A
  * user-defined fixed-point format is used.
  */
-class
-NEMO_BASE_DLL_PUBLIC
-ConnectivityMatrix
+class NEMO_BASE_DLL_PUBLIC ConnectivityMatrix
 {
 	public:
 
@@ -100,12 +98,6 @@ ConnectivityMatrix
 				const network::Generator& net,
 				const ConfigurationImpl& conf,
 				const mapper_t&);
-
-		ConnectivityMatrix(
-				const network::Generator& net,
-				const ConfigurationImpl& conf,
-				const mapper_t&,
-				const bool verifySources);
 
 		/*! Add synapse with pre-mapped source and target
 		 *
@@ -166,8 +158,6 @@ ConnectivityMatrix
 		/*! \return pointer to reverse connectivity matrix */
 		const runtime::RCM* rcm() const { return m_rcm.get(); }
 
-		void finalizeForward(const mapper_t&, bool verifySources);
-
 	private:
 
 		const mapper_t& m_mapper;
@@ -184,6 +174,7 @@ ConnectivityMatrix
 		/* At run-time, however, we want a fast lookup of the rows. We
 		 * therefore use a vector with linear addressing.  */
 		std::vector<Row> m_cm;
+		void finalizeForward(const mapper_t&, bool verifySources);
 
 		boost::scoped_ptr<runtime::RCM> m_rcm;
 

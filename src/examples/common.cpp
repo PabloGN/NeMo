@@ -31,6 +31,7 @@ benchmark(nemo::Simulation* sim, unsigned n, unsigned m,
 	sim->resetTimer();
 
 	unsigned t = 0;
+	float v = 0;
 
 	/* Run for a few seconds to warm up the network */
 	if(verbose)
@@ -76,7 +77,7 @@ benchmark(nemo::Simulation* sim, unsigned n, unsigned m,
 
 			if(vprobe) {
 				/* Just read a single value. The whole neuron population will be synced */
-				sim->getMembranePotential(0);
+				v = sim->getMembranePotential(0);
 			}
 
 			if(stdpPeriod && t % stdpPeriod == 0) {

@@ -38,13 +38,11 @@ class SpikeQueue
 
 		SpikeQueue(delay_t maxDelay);
 
-		unsigned size() const;
-
 		/*! Enqueue an arrival entry for a spike from the given source neuron
 		 * with the given conductance delay.
 		 *
 		 * \param elapsedDelay
-		 * 		Length of time which this spike has already been in flight.
+		 * 		Length of time which this spike has allready been in flight.
 		 */
 		void enqueue(nidx_t source, delay_t delay, delay_t elapsedDelay=0);
 
@@ -53,20 +51,18 @@ class SpikeQueue
 		 * invalidated. */
 		void step();
 
-		/* Iterator of arrivals */
 		typedef std::vector<arrival>::const_iterator const_iterator;
 
-		/*! \return iterator pointing to the first neuron whose spikes should
+		/*! \return iteretor pointing to the first neuron whose spikes should
 		 * be delivered *this* cycle */
 		const_iterator current_begin() const;
 
-		/*! \return iterator pointing to the beyond the last neuron whose
+		/*! \return iteretor pointing to the beyond the last neuron whose
 		 * spikes should be delivered *this* cycle */
 		const_iterator current_end() const;
 
 	private :
 
-		/* Vectors of <source, delay> pairs. Each vector is indexed by the delay */
 		std::vector< std::vector<arrival> > m_queue;
 
 		/* Offset into m_queue corresponding to current cycle */

@@ -38,11 +38,6 @@ namespace nemo {
 		class Generator;
 	}
 
-#ifdef NEMO_MPI_ENABLED
-		namespace mpi {
-			class Worker;
-		}
-#endif
 	namespace cuda {
 
 /*! \namespace nemo::cuda
@@ -276,8 +271,6 @@ class Simulation : public nemo::SimulationBackend
 		/*! \copydoc nemo::Simulation::getSynapsePlastic */
 		unsigned char getSynapsePlastic(const synapse_id& synapse) const;
 
-		Mapper getMapper() const;
-
 		void finishSimulation();
 
 		/* TIMING */
@@ -292,10 +285,6 @@ class Simulation : public nemo::SimulationBackend
 		void resetTimer();
 
 	private :
-
-#ifdef NEMO_MPI_ENABLED
-		friend class nemo::mpi::Worker;
-#endif
 
 		/* Use factory method for generating objects */
 		Simulation(const network::Generator&, const nemo::ConfigurationImpl&);

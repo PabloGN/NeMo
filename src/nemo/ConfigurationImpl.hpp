@@ -14,7 +14,6 @@
 
 #include <ostream>
 #include <boost/optional.hpp>
-#include <boost/optional/optional_io.hpp>
 
 #include <nemo/config.h>
 #include "StdpFunction.hpp"
@@ -37,116 +36,102 @@ namespace nemo {
 
 class NEMO_BASE_DLL_PUBLIC ConfigurationImpl
 {
-public:
+	public:
 
-	ConfigurationImpl();
+		ConfigurationImpl();
 
-	/*! \copydoc nemo::Configuration::enableLogging */
-	void enableLogging() {m_logging = true;}
+		/*! \copydoc nemo::Configuration::enableLogging */
+		void enableLogging() { m_logging = true; }
 
-	/*! \copydoc nemo::Configuration::disableLogging */
-	void disableLogging() {m_logging = false;}
+		/*! \copydoc nemo::Configuration::disableLogging */
+		void disableLogging() { m_logging = false; }
 
-	/*! \copydoc nemo::Configuration::loggingEnabled */
-	bool loggingEnabled() const {return m_logging;}
+		/*! \copydoc nemo::Configuration::loggingEnabled */
+		bool loggingEnabled() const { return m_logging; }
 
-	void setCudaPartitionSize(unsigned ps) {m_cudaPartitionSize = ps;}
-	unsigned cudaPartitionSize() const {return m_cudaPartitionSize;}
+		void setCudaPartitionSize(unsigned ps) { m_cudaPartitionSize = ps; }
+		unsigned cudaPartitionSize() const { return m_cudaPartitionSize; }
 
-	void setCudaDevice(unsigned device) {m_cudaDevice = device;}
-	unsigned cudaDevice() const {return m_cudaDevice;}
+		void setCudaDevice(unsigned device) { m_cudaDevice = device; }
+		unsigned cudaDevice() const { return m_cudaDevice; }
 
-	/*! \copydoc nemo::Configuration::setStdpFunction */
-	void setStdpFunction(
-			const std::vector<float>& prefire,
-			const std::vector<float>& postfire,
-			float minExcitatoryWeight,
-			float maxExcitatoryWeight,
-			float minInhibitoryWeight,
-			float maxInhibitoryWeight);
+		/*! \copydoc nemo::Configuration::setStdpFunction */
+		void setStdpFunction(
+				const std::vector<float>& prefire,
+				const std::vector<float>& postfire,
+				float minExcitatoryWeight,
+				float maxExcitatoryWeight,
+				float minInhibitoryWeight,
+				float maxInhibitoryWeight);
 
-	const boost::optional<StdpFunction>& stdpFunction() const {return m_stdpFn;}
+		const boost::optional<StdpFunction>& stdpFunction() const { return m_stdpFn; }
 
-	/*! \copydoc nemo::Configuration::setWriteOnlySynapses */
-	void setWriteOnlySynapses() {m_writeOnlySynapses = true;}
+		/*! \copydoc nemo::Configuration::setWriteOnlySynapses */
+		void setWriteOnlySynapses() { m_writeOnlySynapses = true; }
 
-	/*! \copydoc nemo::Configuration::writeOnlySynapses */
-	bool writeOnlySynapses() const {return m_writeOnlySynapses;}
+		/*! \copydoc nemo::Configuration::writeOnlySynapses */
+		bool writeOnlySynapses() const { return m_writeOnlySynapses; }
 
-	void setFractionalBits(unsigned bits);
+		void setFractionalBits(unsigned bits);
 
-	/*! \return the number of fractional bits. If the user has not
-	 * specified this (\see fractionalBitsSet) the return value is
-	 * undefined */
-	unsigned fractionalBits() const;
+		/*! \return the number of fractional bits. If the user has not
+		 * specified this (\see fractionalBitsSet) the return value is
+		 * undefined */
+		unsigned fractionalBits() const;
 
-	bool fractionalBitsSet() const;
+		bool fractionalBitsSet() const;
 
-	void setBackend(backend_t backend);
-	backend_t backend() const {return m_backend;}
+		void setBackend(backend_t backend);
+		backend_t backend() const { return m_backend; }
 
-	void setBackendDescription(const char* descr) {m_backendDescription.assign(descr);}
-	const char* backendDescription() const {return m_backendDescription.c_str();}
+		void setBackendDescription(const char* descr) { m_backendDescription.assign(descr); }
+		const char* backendDescription() const { return m_backendDescription.c_str(); }
 
-	void setStdpPeriod(unsigned period);
+		/*! Verify that the STDP configuration is valid
+		 *
+		 * \param d_max maximum delay in network
+		 */
+		void verifyStdp(unsigned d_max) const;
 
-	unsigned stdpPeriod() const;
+	private:
 
-	void setStdpReward(float reward);
+		bool m_logging;
+		boost::optional<StdpFunction> m_stdpFn;
 
-	float stdpReward() const;
+		bool m_writeOnlySynapses;
 
-	void setStdpEnabled(bool isEnabled);
+		int m_fractionalBits;
+		static const int s_defaultFractionalBits = -1;
 
-	bool stdpEnabled() const;
+		/* CUDA-specific */
+		unsigned m_cudaPartitionSize;
 
-	/*! Verify that the STDP configuration is valid
-	 *
-	 * \param d_max maximum delay in network
-	 */
-	void verifyStdp(unsigned d_max) const;
+		unsigned m_cudaDevice;
 
-private:
+		friend void check_close(const ConfigurationImpl& lhs, const ConfigurationImpl& rhs);
 
-	bool m_logging;
-	boost::optional<StdpFunction> m_stdpFn;
+		backend_t m_backend;
 
-	bool m_writeOnlySynapses;
-
-	int m_fractionalBits;
-	static const int s_defaultFractionalBits = -1;
-
-	/* CUDA-specific */
-	unsigned m_cudaPartitionSize;
-
-	unsigned m_cudaDevice;
-
-	friend void check_close(const ConfigurationImpl& lhs, const ConfigurationImpl& rhs);
-
-	backend_t m_backend;
-
-	std::string m_backendDescription;
-
-	bool m_stdpEnabled;
-	unsigned m_stdpPeriod;
-	float m_stdpReward;
+		std::string m_backendDescription;
 
 #ifdef NEMO_MPI_ENABLED
-	friend class boost::serialization::access;
+		friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		ar & m_logging;
-		ar & m_stdpFn;
-		ar & m_fractionalBits;
-		ar & m_cudaPartitionSize;
-		ar & m_backend;
-		ar & m_backendDescription;
-	}
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version) {
+			ar & m_logging;
+			ar & m_stdpFn;
+			ar & m_fractionalBits;
+			ar & m_cudaPartitionSize;
+			ar & m_backend;
+			ar & m_backendDescription;
+		}
 #endif
 };
 
+
 }
+
 
 NEMO_BASE_DLL_PUBLIC
 std::ostream& operator<<(std::ostream& o, nemo::ConfigurationImpl const& conf);

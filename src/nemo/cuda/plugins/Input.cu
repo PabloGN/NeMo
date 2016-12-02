@@ -72,7 +72,7 @@ updateNeurons(
 		unsigned neuron = nbase + threadIdx.x;
 		bool fired = bv_isSet(neuron, s_valid) && bv_isSet(neuron, s_fstim);
 		if(fired) {
-                s_fired[atomicAdd(&s_nFired, 1)] = neuron;
+			s_fired[atomicAdd(&s_nFired, 1)] = neuron;
 #ifdef NEMO_CUDA_PLUGIN_DEBUG_TRACE
 				DEBUG_MSG_NEURON("c? ?+%u-%u fired\n", CURRENT_PARTITION, neuron);
 #endif

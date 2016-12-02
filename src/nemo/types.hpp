@@ -19,15 +19,8 @@
 #include "Neuron.hpp"
 
 #ifdef NEMO_MPI_ENABLED
-#include <boost/serialization/utility.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/mpi/datatype.hpp>
-
-namespace nemo {
-namespace mpi {
-typedef int rank_t;
-}
-}
 #endif
 
 
@@ -45,6 +38,7 @@ namespace nemo {
 struct AxonTerminal
 {
 	public :
+
 		id32_t id;
 		nidx_t target;
 		float weight;
@@ -138,21 +132,19 @@ struct SynapseAddress
 
 
 #ifdef NEMO_MPI_ENABLED
-BOOST_IS_MPI_DATATYPE(nemo::NeuronType);
-BOOST_CLASS_IMPLEMENTATION(nemo::NeuronType, object_serializable)
-BOOST_CLASS_TRACKING(nemo::NeuronType, track_never)
+
+BOOST_CLASS_IMPLEMENTATION(nemo::AxonTerminal, object_serializable)
+BOOST_CLASS_IMPLEMENTATION(nemo::Synapse, object_serializable)
+BOOST_CLASS_IMPLEMENTATION(nemo::Neuron, object_serializable)
 
 BOOST_IS_MPI_DATATYPE(nemo::AxonTerminal);
-BOOST_CLASS_IMPLEMENTATION(nemo::AxonTerminal, object_serializable)
-BOOST_CLASS_TRACKING(nemo::AxonTerminal, track_never)
-
 BOOST_IS_MPI_DATATYPE(nemo::Synapse);
-BOOST_CLASS_IMPLEMENTATION(nemo::Synapse, object_serializable)
-BOOST_CLASS_TRACKING(nemo::Synapse, track_never)
+BOOST_IS_MPI_DATATYPE(nemo::Neuron);
 
-//not fixed length BOOST_IS_MPI_DATATYPE(nemo::Neuron);
-BOOST_CLASS_IMPLEMENTATION(nemo::Neuron, object_serializable)
+BOOST_CLASS_TRACKING(nemo::AxonTerminal, track_never)
+BOOST_CLASS_TRACKING(nemo::Synapse, track_never)
 BOOST_CLASS_TRACKING(nemo::Neuron, track_never)
+
 #endif
 
 

@@ -187,9 +187,5 @@ Network::neuronCount() const
 	return m_impl->neuronCount();
 }
 
-long unsigned Network::synapseCount() const{
-	return m_impl->synapseCount();
-};
-
 
 } // end namespace nemo

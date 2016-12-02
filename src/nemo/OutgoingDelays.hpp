@@ -14,7 +14,7 @@
 #include <map>
 #include <set>
 #include <boost/unordered_map.hpp>
-#include <sstream>
+
 #include <nemo/internal_types.h>
 
 namespace nemo {

@@ -175,7 +175,6 @@ Simulation::finalizeCurrentStimulus(size_t count)
 void
 Simulation::setCurrentStimulus(const std::vector<float>& current)
 {
-	// TODO: In Andreas' NeMo this is m_current, not m_currentExt
 	if(m_currentExt.empty()) {
 		//! do we need to clear current?
 		return;
@@ -187,10 +186,10 @@ Simulation::setCurrentStimulus(const std::vector<float>& current)
 	 * only use local indices. */
 	throw nemo::exception(NEMO_API_UNSUPPORTED, "setting current stimulus vector not supported for CPU backend");
 #if 0
-	if(current.size() != m_currentExt.size()) {
+	if(current.size() != m_current.size()) {
 		throw nemo::exception(NEMO_INVALID_INPUT, "current stimulus vector not of expected size");
 	}
-	m_currentExt = current;
+	m_current = current;
 #endif
 }
 
@@ -375,6 +374,8 @@ Simulation::getSynapsePlastic(const synapse_id& synapse) const
 {
 	return m_cm->getPlastic(synapse);
 }
+
+
 
 unsigned long
 Simulation::elapsedWallclock() const

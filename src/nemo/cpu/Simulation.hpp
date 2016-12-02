@@ -11,7 +11,7 @@
  */
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include <nemo/config.h>
 #include <nemo/internal_types.h>
@@ -26,12 +26,6 @@
 
 
 namespace nemo {
-
-#ifdef NEMO_MPI_ENABLED
-		namespace mpi {
-			class Worker;
-		}
-#endif
 
 	namespace cpu {
 
@@ -125,10 +119,6 @@ class NEMO_CPU_DLL_PUBLIC Simulation : public nemo::SimulationBackend
 
 	private:
 
-		#ifdef NEMO_MPI_ENABLED
-		friend class nemo::mpi::Worker;
-		#endif
-
 		typedef std::vector< boost::shared_ptr<Neurons> > neuron_groups;
 		neuron_groups m_neurons;
 
@@ -149,7 +139,7 @@ class NEMO_CPU_DLL_PUBLIC Simulation : public nemo::SimulationBackend
 		 * synapses */
 		std::vector<uint64_t> m_delays;
 
-		boost::shared_ptr<nemo::ConnectivityMatrix> m_cm;
+		boost::scoped_ptr<nemo::ConnectivityMatrix> m_cm;
 
 		/* Per-neuron accumulated current from EPSPs */
 		std::vector<wfix_t> mfx_currentE;

@@ -13,31 +13,7 @@ IF(NOT WIN32)
 	FIND_PATH(LTDL_INCLUDE_DIR ltdl.h)
 	FIND_LIBRARY(LTDL_LIBRARY NAMES ltdl)
 	IF(NOT LTDL_INCLUDE_DIR OR NOT LTDL_LIBRARY)
-    MESSAGE(STATUS "The ltdl library does not seem to be installed in your system. CMake will try to download it and build it. If you have root access in this machine, you might want to install libltdl-dev.")
-		FIND_PROGRAM(M4_bin m4)
-		IF(NOT M4_bin)
-			MESSAGE(STATUS "To build ltdl we need m4, and it's not in your machine either. I'll try to build it too.")
-			INCLUDE(ExternalProject)
-			ExternalProject_Add(M4
-				# TODO: should we download this particular version or m4-latest.tar.gz?
-				URL http://ftp.gnu.org/gnu/m4/m4-1.4.17.tar.gz
-				PREFIX ./m4
-				CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
-				)
-			ExternalProject_Get_Property(M4 install_dir)
-			SET(M4_bin ${install_dir}/bin/m4)
-		ENDIF(NOT M4_bin)
-		INCLUDE(ExternalProject)
-		ExternalProject_Add(LTDL
-			DEPENDS M4
-			# TODO: should we write this url (with version nb included) or fetch it from the development repo? (there is no latest for ltdl)
-			URL http://ftpmirror.gnu.org/libtool/libtool-2.4.6.tar.gz
-			PREFIX ./libtool
-			CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> M4=${M4_bin}
-			)
-		ExternalProject_Get_Property(LTDL install_dir)
-		SET(LTDL_INCLUDE_DIR ${install_dir}/include)
-		SET(LTDL_LIBRARY ${install_dir}/lib/libltdl.so)
+		MESSAGE(SEND_ERROR "The ltdl library is required for loading plugins on Linux and OSX. If the library or the include directory is not found, ensure that ltdl library and the libltdl development headers are installed on your system.")
 	ENDIF(NOT LTDL_INCLUDE_DIR OR NOT LTDL_LIBRARY)
 ELSE(NOT WIN32)
 	SET(LTDL_INCLUDE_DIR "")
@@ -81,44 +57,13 @@ ADD_LIBRARY(nemo_base
 TARGET_LINK_LIBRARIES(nemo_base ${LTDL_LIBRARY} ${Boost_LIBRARIES})
 SET_TARGET_PROPERTIES(nemo_base PROPERTIES DEFINE_SYMBOL NEMO_BASE_EXPORTS)
 
-ADD_LIBRARY(nemo_base_a STATIC
-	Axon.cpp
-	ConfigurationImpl.cpp
-	ConnectivityMatrix.cpp
-	FiringBuffer.cpp
-	fixedpoint.cpp
-	Network.cpp
-	NetworkImpl.cpp
-	Neuron.cpp
-	Neurons.cpp
-	NeuronType.cpp
-	Simulation.cpp
-	SimulationBackend.cpp
-	OutgoingDelays.cpp
-	Plugin.cpp
-	ReadableNetwork.cpp
-	RNG.cpp
-	runtime/RCM.cpp
-	StdpFunction.cpp
-	StdpProcess.cpp
-)
-
-TARGET_LINK_LIBRARIES(nemo_base_a ${LTDL_LIBRARY} ${Boost_LIBRARIES})
-SET_TARGET_PROPERTIES(nemo_base_a PROPERTIES DEFINE_SYMBOL NEMO_BASE_EXPORTS)
-
 
 ADD_LIBRARY(nemo nemo.cpp nemo_c.cpp Configuration.cpp)
 SET_TARGET_PROPERTIES(nemo PROPERTIES DEFINE_SYMBOL NEMO_EXPORTS)
 TARGET_LINK_LIBRARIES(nemo nemo_base ${BACKEND_LIBS})
 
+
 INSTALL(TARGETS nemo nemo_base DESTINATION ${INSTALL_LIB_DIR})
-
-
-ADD_LIBRARY(nemo_a STATIC nemo.cpp nemo_c.cpp Configuration.cpp)
-SET_TARGET_PROPERTIES(nemo_a PROPERTIES DEFINE_SYMBOL NEMO_EXPORTS)
-TARGET_LINK_LIBRARIES(nemo_a nemo_base_a ${BACKEND_LIBS})
-
-INSTALL(TARGETS nemo_a nemo_base_a DESTINATION ${INSTALL_LIB_DIR})
 
 INSTALL(FILES
 		exception.hpp

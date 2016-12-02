@@ -56,8 +56,6 @@ def plot_stdin_hs(start=0, duration=0, outfile=None):
         []
         [7]
     """
-	print "plot_stdin_hs"
-
     ts = []
     nns = []
     # TODO: do this by chunks in order to deal with large files, see e.g.

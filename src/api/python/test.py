@@ -11,8 +11,7 @@ class IzNetwork(nemo.Network):
         self._type = self.add_neuron_type('Izhikevich')
 
     def add_neuron(self, nidx, a, b, c, d, sigma, u, v):
-        nemo.Network.add_neuron(self, self._type, nidx,
-                {'a':a ,'b': b,'c': c,'d': d,'sigma': sigma}, {'u': u, 'v': v})
+        nemo.Network.add_neuron(self, self._type, nidx, a, b, c, d, sigma, u, v)
 
 
 def randomSource():

@@ -77,11 +77,8 @@ compareSimulations(
 		unsigned duration,
 		bool stdp)
 {
-	// PEDRO: comment this out. We do we want << ?
-	/*
 	std::cout << "Comparing " << conf1 << "\n"
 	          << "      and " << conf2 << "\n";
-	*/
 	std::vector<unsigned> cycles1, cycles2, nidx1, nidx2;
 	runSimulation(net1, conf1, duration, &cycles1, &nidx1, stdp);
 	runSimulation(net2, conf2, duration, &cycles2, &nidx2, stdp);
@@ -483,9 +480,7 @@ BOOST_AUTO_TEST_SUITE(ring_tests)
 
 	TEST_ALL_BACKENDS_N(n4000, runRing, 4000, 1); // ditto
 	TEST_ALL_BACKENDS_N(n2000d20, runRing, 2000, 20); // ditto
-	// PEDRO: delay=80ms is not supported by CPU (max 64). Why is this test here?
-	// TEST_ALL_BACKENDS_N(n2000d80, runRing, 2000, 80); // ditto
-	TEST_ALL_BACKENDS_N(n2000d80, runRing, 2000, 63); // ditto
+	TEST_ALL_BACKENDS_N(n2000d80, runRing, 2000, 80); // ditto
 	TEST_ALL_BACKENDS(delays, runDoubleRing);
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -495,7 +490,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_CASE(mapping_tests_random)
 {
 	// only need to create the network once
-	boost::scoped_ptr<nemo::Network> net(nemo::random::constructUniformRandom(1000, 1000, 1, true));
+	boost::scoped_ptr<nemo::Network> net(nemo::random::construct(1000, 1000, 1, true));
 	runComparisions(net.get());
 }
 #endif
@@ -666,7 +661,7 @@ void testInvalidStdpUsage(backend_t);
 void
 testStdpWithAllStatic(backend_t backend)
 {
-	boost::scoped_ptr<nemo::Network> net(nemo::random::constructUniformRandom(1000, 1000, 1, false));
+	boost::scoped_ptr<nemo::Network> net(nemo::random::construct(1000, 1000, 1, false));
 	nemo::Configuration conf = configuration(true, 1024, backend);
 	boost::scoped_ptr<nemo::Simulation> sim(nemo::simulation(*net, conf));
 	for(unsigned s=0; s<4; ++s) {

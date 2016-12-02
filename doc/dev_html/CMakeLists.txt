@@ -12,7 +12,7 @@
 #
 ##############################################################################
 
-OPTION(NEMO_DOC_SOURCE_ENABLED "Create full source code documentation using Doxygen" ON)
+OPTION(NEMO_DOC_SOURCE_ENABLED "Create full source code documentation using Doxygen" OFF)
 
 IF(NEMO_DOC_SOURCE_ENABLED)
 
@@ -30,10 +30,6 @@ IF(NEMO_DOC_SOURCE_ENABLED)
 		${CMAKE_SOURCE_DIR}/src/nemo/network/programmatic
 	)
 
-    IF(NEMO_MPI_ENABLED)
-        LIST(APPEND DOXYGEN_INPUT ${CMAKE_SOURCE_DIR}/src/mpi)
-    ENDIF(NEMO_MPI_ENABLED)
-    
 	# Convert dependency list to whitespace separated string
 	SET(DOXYGEN_INPUT_STR "")
 	FOREACH(ARG ${DOXYGEN_INPUT})

@@ -23,8 +23,7 @@ ConfigurationImpl::ConfigurationImpl() :
 	m_cudaPartitionSize(0),
 	m_cudaDevice(~0U),
 	m_backend(~0U), // the wrapper class will set this
-	m_backendDescription("No backend specified"),
-	m_stdpEnabled(false)
+	m_backendDescription("No backend specified")
 {
 	;
 }
@@ -96,17 +95,7 @@ ConfigurationImpl::setBackend(backend_t backend)
 	}
 }
 
-void ConfigurationImpl::setStdpPeriod(unsigned period ) { m_stdpPeriod = period; }
 
-unsigned ConfigurationImpl::stdpPeriod() const {return m_stdpPeriod; }
-
-void ConfigurationImpl::setStdpReward(float reward) { m_stdpReward = reward; }
-
-float ConfigurationImpl::stdpReward() const {return m_stdpReward; }
-
-void ConfigurationImpl::setStdpEnabled(bool isEnabled) { m_stdpEnabled = isEnabled; }
-
-bool ConfigurationImpl::stdpEnabled() const { return m_stdpEnabled; }
 
 void
 ConfigurationImpl::verifyStdp(unsigned d_max) const

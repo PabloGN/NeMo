@@ -24,8 +24,7 @@ ADD_EXECUTABLE(test
 	c_api.cpp
 	${EXAMPLES_DIR}/kuramoto.cpp
 	${EXAMPLES_DIR}/torus.cpp
-	${EXAMPLES_DIR}/random.cpp
-	${EXAMPLES_DIR}/randomNetUtils.cpp)
+	${EXAMPLES_DIR}/random.cpp)
 TARGET_LINK_LIBRARIES(test nemo ${Boost_LIBRARIES})
 
 ADD_EXECUTABLE(create_rtest_data
@@ -34,8 +33,7 @@ ADD_EXECUTABLE(create_rtest_data
 	utils.cpp
 	${EXAMPLES_DIR}/kuramoto.cpp
 	${EXAMPLES_DIR}/torus.cpp
-	${EXAMPLES_DIR}/random.cpp
-	${EXAMPLES_DIR}/randomNetUtils.cpp)
+	${EXAMPLES_DIR}/random.cpp)
 TARGET_LINK_LIBRARIES(create_rtest_data nemo ${Boost_LIBRARIES})
 
 IF(INCLUDE_MPI)

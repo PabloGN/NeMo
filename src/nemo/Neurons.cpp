@@ -102,6 +102,8 @@ Neurons::getParameter(size_t nidx, unsigned pidx) const
 	return m_param[parameterIndex(pidx)][nidx];
 }
 
+
+
 float
 Neurons::getState(size_t nidx, unsigned sidx) const
 {

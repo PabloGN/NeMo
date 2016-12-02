@@ -33,7 +33,7 @@
 //! \todo use more optimal reduction here
 __device__
 void
-sum256(const float g_Cmean, float* sdata, float *s_out)
+sum256(float* sdata, float *s_out)
 {  
     unsigned tid = threadIdx.x;
 
@@ -45,9 +45,8 @@ sum256(const float g_Cmean, float* sdata, float *s_out)
     }
 
     if(tid == 0) {
-		*s_out += sdata[0]/g_Cmean;
-
-    }
+		*s_out += sdata[0];
+	}
 }
 
 
@@ -57,10 +56,10 @@ sum256(const float g_Cmean, float* sdata, float *s_out)
  */
 __device__
 void
-sumN(const float g_Cmean, const float s_weight[],
+sumN(const float s_weight[],
 		const float s_sourcePhase[],
 		unsigned indegree,
-		float targetPhase,		
+		float targetPhase,
 		float* out)
 {
 	unsigned tid = threadIdx.x;
@@ -69,13 +68,11 @@ sumN(const float g_Cmean, const float s_weight[],
 	for(unsigned i=0; i<indegree; i += THREADS_PER_BLOCK) {
 		unsigned sid = i+tid;
 		if(sid < indegree) {
-			s_tmp[tid] = s_weight[sid] * sinf(s_sourcePhase[sid] - targetPhase);
+			s_tmp[tid] += s_weight[sid] * sinf(s_sourcePhase[sid] - targetPhase);
 		}
-		
 	}
 	__syncthreads();
-	sum256(g_Cmean, s_tmp, out);
-
+	sum256(s_tmp, out);
 	__syncthreads();
 }
 
@@ -140,7 +137,7 @@ loadIncoming(
  */
 __device__
 void
-computePhaseShift(const float* g_frequency, const float g_Cmean,
+computePhaseShift(
 	unsigned cycle,
 	unsigned partitionSize,
 	const param_t& s_params,
@@ -149,15 +146,14 @@ computePhaseShift(const float* g_frequency, const float g_Cmean,
 	rcm_index_address_t s_row,
 	float targetPhase,
 	float targetFrequency,
-	float h,
 	float* s_phaseShift)
 {
-    	unsigned tid = threadIdx.x;
+    unsigned tid = threadIdx.x;
 	//! \todo pre-load index addresses for a bunch of targets, and pass this in
 
 	__shared__ float s_sourcePhase[INCOMING_BUFFER_SIZE];
 	__shared__ float s_weight[INCOMING_BUFFER_SIZE];
-     
+
 	const unsigned inWarps = rcm_indexRowLength(s_row);
 
 	loadIncoming(cycle, inWarps, s_params, g_state, g_rcm, s_row, s_sourcePhase, s_weight);
@@ -168,16 +164,15 @@ computePhaseShift(const float* g_frequency, const float g_Cmean,
 	}
 	__syncthreads();
 
-
 	unsigned indegree = inWarps * WARP_SIZE; // possible some padding
-	sumN(g_Cmean, s_weight, s_sourcePhase, indegree, targetPhase            , s_k+0);
-	sumN(g_Cmean, s_weight, s_sourcePhase, indegree, targetPhase+s_k[0]*0.5f*h, s_k+1);
-	sumN(g_Cmean, s_weight, s_sourcePhase, indegree, targetPhase+s_k[1]*0.5f*h, s_k+2);
-	sumN(g_Cmean, s_weight, s_sourcePhase, indegree, targetPhase+s_k[2]*h     , s_k+3);
+	sumN(s_weight, s_sourcePhase, indegree, targetPhase            , s_k+0);
+	sumN(s_weight, s_sourcePhase, indegree, targetPhase+s_k[0]*0.5f, s_k+1);
+	sumN(s_weight, s_sourcePhase, indegree, targetPhase+s_k[1]*0.5f, s_k+2);
+	sumN(s_weight, s_sourcePhase, indegree, targetPhase+s_k[2]     , s_k+3);
 
 	//! \todo use precomputed factor and multiply
 	if(tid == 0) {
-		*s_phaseShift = h*(s_k[0] + 2*s_k[1] + 2*s_k[2] + s_k[3])/6.0f;
+		*s_phaseShift = (s_k[0] + 2*s_k[1] + 2*s_k[2] + s_k[3])/6.0f;
 	}
 	__syncthreads();
 }
@@ -213,13 +208,8 @@ updateOscillators(
 	__syncthreads();
 
 	/* Natural frequency of oscillations */
-	//const float* g_frequency = g_nparams + CURRENT_PARTITION * s_params.pitch32;
+	const float* g_frequency = g_nparams + CURRENT_PARTITION * s_params.pitch32;
 
-	const float* neuronParameters = g_nparams + CURRENT_PARTITION * s_params.pitch32;
-	size_t neuronParametersSize = PARTITION_COUNT * s_params.pitch32;	
-     	const float* g_frequency = neuronParameters + 0 * neuronParametersSize;
-       	const float* g_Cmean = neuronParameters + 1 * neuronParametersSize;
-  
 	/* Current phase */
 	const float* g_phase0 =
 		state<MAX_HISTORY_LENGTH, 1, STATE_PHASE>(cycle, s_params.pitch32, g_nstate);
@@ -232,31 +222,26 @@ updateOscillators(
 
 	for(unsigned bOscillator=0; bOscillator < s_partitionSize; bOscillator += THREADS_PER_BLOCK) {
 
-		__shared__ float s_Cmean[THREADS_PER_BLOCK];
 		__shared__ float s_phase0[THREADS_PER_BLOCK];
 		__shared__ float s_phaseShift[THREADS_PER_BLOCK];
 		__shared__ float s_frequency[THREADS_PER_BLOCK];
-		__shared__ float s_h[THREADS_PER_BLOCK];
 		__shared__ rcm_index_address_t s_row[THREADS_PER_BLOCK];
 
 		unsigned oscillator = bOscillator + tid;
 
-		s_Cmean[tid] = g_Cmean[oscillator] > 0 ?  g_Cmean[oscillator] : 1;
 		s_phase0[tid] = g_phase0[oscillator];
 		s_frequency[tid] = g_frequency[oscillator];
 		s_phaseShift[tid] = 0.0f;
 		s_row[tid] = rcm_indexAddress(oscillator, g_rcm);
 		__syncthreads();
 
-		float h = 0.05;
-
 		/* now compute the incoming phase for each sequentially */
 		//! \todo cut loop short when we get to end?
 		for(unsigned iTarget=0; iTarget < THREADS_PER_BLOCK; iTarget+= 1) {
 			if(bv_isSet(bOscillator+iTarget, s_valid)) {
-				computePhaseShift(g_frequency, s_Cmean[iTarget], cycle, s_partitionSize,
+				computePhaseShift(cycle, s_partitionSize,
 						s_params, g_nstate, g_rcm,
-						s_row[iTarget], s_phase0[iTarget], s_frequency[iTarget], h,
+						s_row[iTarget], s_phase0[iTarget], s_frequency[iTarget],
 						s_phaseShift + iTarget);
 			}
 		}
@@ -346,12 +331,7 @@ initOscillators(
 	__syncthreads();
 
 	/* Natural frequency of oscillations */
-	//const float* g_frequency = g_nparams + CURRENT_PARTITION * s_params.pitch32;
-
-	const float* neuronParameters = g_nparams + CURRENT_PARTITION * s_params.pitch32;
-	size_t neuronParametersSize = PARTITION_COUNT * s_params.pitch32;	
-     	const float* g_frequency = neuronParameters + 0 * neuronParametersSize;
-    
+	const float* g_frequency = g_nparams + CURRENT_PARTITION * s_params.pitch32;
 
 	for(unsigned t=0; t < MAX_HISTORY_LENGTH-1; t++) {
 

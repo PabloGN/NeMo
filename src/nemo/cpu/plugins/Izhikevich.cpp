@@ -62,9 +62,6 @@ cpu_update_neurons(
 		//! \todo clear this outside kernel
 		currentExternal[ng] = 0.0f;
 
-    // TODO: PEDRO: Would this be safer with sigma > 0?
-    // TODO: PEDRO: Given that this is a stochastic component, it should be
-    // integrated with sqrt(dt), according to the Euler-Maruyama method
 		if(sigma[nl] != 0.0f) {
 			I += sigma[nl] * nrand(&rng[nl]);
 		}

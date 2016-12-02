@@ -1,6 +1,6 @@
 # check for MPI library
-FIND_PACKAGE(MPI REQUIRED)
-FIND_PACKAGE(CUDA)
+
+FIND_PACKAGE(MPI)
 
 IF(NOT MPI_FOUND)
 	MESSAGE(SEND_ERROR "MPI enabled, but no MPI implementation found on this system")
@@ -12,27 +12,36 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/src/examples
 	${CMAKE_SOURCE_DIR}/src
 	${CMAKE_BINARY_DIR}/src # for configuration
-	${Boost_INCLUDE_DIRS}
-	${CUDA_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIR}
 )
 
-LIST(APPEND MPI_SRCS Master.cpp Worker.cpp Mapper.cpp SpikeQueue.cpp MpiTimer.cpp mpiUtils.cpp WorkerLogger.cpp)
-
-IF(NEMO_MPI_DEBUG_TIMING)
-LIST(APPEND MPI_SRCS MpiTimer.cpp)
-ENDIF(NEMO_MPI_DEBUG_TIMING)
-
-ADD_LIBRARY(nemo_mpi SHARED ${MPI_SRCS})
+ADD_LIBRARY(nemo_mpi SHARED
+	Master.cpp
+	Worker.cpp
+	Mapper.cpp
+	SpikeQueue.cpp
+	# TODO: only include if mpi timing is enabled
+	MpiTimer.cpp
+)
 
 SET_TARGET_PROPERTIES(nemo_mpi PROPERTIES
 		DEFINE_SYMBOL NEMO_EXPORTS
 )
 
-add_dependencies(nemo_mpi nemo nemo_base  nemo_cuda nemo_cpu)
 
-TARGET_LINK_LIBRARIES(nemo_mpi nemo nemo_base nemo_cuda nemo_cpu ${MPI_LIBRARIES} ${Boost_LIBRARIES})
+# TODO: should probably link against boost libraries here.
+TARGET_LINK_LIBRARIES(nemo_mpi nemo ${MPI_LIBRARIES})
 
- #TODO: can share this code with examples cmakefile
+SET(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
+ADD_EXECUTABLE(mpi_example
+	example.cpp
+	${EXAMPLES_DIR}/random.cpp
+)
+
+# TODO: extract only mpi and serialisation here.
+TARGET_LINK_LIBRARIES(mpi_example nemo_mpi nemo ${MPI_LIBRARIES} ${Boost_LIBRARIES})
+
+# TODO: can share this code with examples cmakefile
 IF(UNIX)
 	SET(INSTALL_EXAMPLE_BIN_DIR "share/nemo/examples")
 ENDIF(UNIX)
@@ -42,3 +51,4 @@ IF(WIN32)
 ENDIF(WIN32)
 
 INSTALL(TARGETS nemo_mpi DESTINATION ${INSTALL_LIB_DIR})
+INSTALL(TARGETS mpi_example DESTINATION ${INSTALL_EXAMPLE_BIN_DIR})

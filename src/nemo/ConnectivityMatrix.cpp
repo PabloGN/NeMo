@@ -92,36 +92,6 @@ ConnectivityMatrix::ConnectivityMatrix(
 	m_rcm.reset(new runtime::RCM(m_racc));
 }
 
-ConnectivityMatrix::ConnectivityMatrix(
-		const network::Generator& net,
-		const ConfigurationImpl& conf,
-		const mapper_t& mapper,
-		const bool verifySources) :
-	m_mapper(mapper),
-	m_fractionalBits(conf.fractionalBits()),
-	m_maxDelay(0),
-	m_writeOnlySynapses(conf.writeOnlySynapses())
-{
-	if(conf.stdpFunction()) {
-		m_stdp = StdpProcess(conf.stdpFunction().get(), m_fractionalBits);
-	}
-
-	construction::RCM<nidx_t, RSynapse, 32> m_racc(conf, net, RSynapse(~0U,0));
-	network::synapse_iterator i = net.synapse_begin();
-	network::synapse_iterator i_end = net.synapse_end();
-
-	for( ; i != i_end; ++i) {
-		nidx_t source = mapper.localIdx(i->source);
-		nidx_t target = mapper.localIdx(i->target());
-		sidx_t sidx = addSynapse(source, target, *i);
-		m_racc.addSynapse(target, RSynapse(source, i->delay), *i, sidx);
-	}
-
-	//! \todo avoid two passes here
-	finalizeForward(mapper, verifySources);
-	m_rcm.reset(new runtime::RCM(m_racc));
-}
-
 
 
 sidx_t
@@ -180,8 +150,7 @@ ConnectivityMatrix::finalizeForward(const mapper_t& mapper, bool verifySources)
 
 			std::map<fidx_t, row_t>::const_iterator row = m_acc.find(fidx_t(n, d));
 			if(row != m_acc.end()) {
-				// TODO: the next line was included by Andreas, but commented out by Pavlos. What should we do?
-				//verifySynapseTerminals(row->first, row->second, mapper, verifySources);
+				verifySynapseTerminals(row->first, row->second, mapper, verifySources);
 				m_cm.at(addressOf(n,d)) = Row(row->second);
 			} else {
 				/* Insertion into map does not invalidate existing iterators */
@@ -244,7 +213,7 @@ ConnectivityMatrix::accumulateStdp(const std::vector<uint64_t>& recentFiring)
 				const RSynapse* rdata_ptr = m_rcm->data(*wi);
 				fix_t* accumulator = m_rcm->accumulator(*wi);
 
-				for(int s=0; s < m_rcm->WIDTH && remaining--; s++) {
+				for(signed s=0; s < m_rcm->WIDTH && remaining--; s++) {
 					const RSynapse& rdata = rdata_ptr[s];
 					uint64_t preFiring = recentFiring[rdata.source] >> rdata.delay;
 					fix_t w_diff = m_stdp->weightChange(preFiring, rdata.source, target);
@@ -303,7 +272,7 @@ ConnectivityMatrix::applyStdp(float reward)
 			const uint32_t* forward = m_rcm->forward(*wi);
 			fix_t* accumulator = m_rcm->accumulator(*wi);
 
-			for(int s=0; s < m_rcm->WIDTH && remaining--; s++) {
+			for(signed s=0; s < m_rcm->WIDTH && remaining--; s++) {
 
 				const RSynapse& rsynapse = rdata_ptr[s];
 				fix_t* w_old = weight(rsynapse, forward[s]);

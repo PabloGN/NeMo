@@ -1,13 +1,6 @@
-# NeMo v@NEMO_VERSION@
+NeMo v@NEMO_VERSION@
 
-NeMo is a high-performance spiking neural network simulator
-which simulates networks of Izhikevich neurons on CUDA-
-enabled GPUs. With high-end NVIDIA graphics cards, NeMo can 
-achieve real-time simulation of 500.000s of realistically
-connected spiking neurons. NeMo is a C++ class library, 
-with additional interfaces for pure C, Python, and Matlab.
-
-
+@NEMO_DESCRIPTION@
 If you are a new user of NeMo please consider sending a
 short email to the author with a brief description of who
 you are and what you use it for. This would be greatly
@@ -30,8 +23,12 @@ found on the mailing list. Sign up to the list at
 
 	https://lists.sourceforge.net/lists/listinfo/nemosim-user
 
-### Credits
+NeMo is written by
 
-NeMo was originally written by [Andreas K. Fidjeland]("mailto:andreas.fidjeland@imperial.ac.uk) and it is now 
-maintained by the [Computational Neurodynamics group](http://neurodynamics.doc.ic.ac.uk/ "Group's homepage"), of
-[Imperial College London](www.imperial.ac.uk "College's homepage").
+Andreas K. Fidjeland <andreas.fidjeland@imperial.ac.uk>
+Imperial College London
+Department of Computing
+180 Queen's Gate
+London SW7 2AZ
+
+August 2011

@@ -98,8 +98,7 @@ cpu_update_neurons(
 {
 	const nemo::runtime::RCM& rcm = *static_cast<nemo::runtime::RCM*>(rcm_ptr);
 
-	const float* frequency = paramBase + 0 * paramStride;
- 	const float* g_Cmean = paramBase + 1 * paramStride;
+	const float* frequency = paramBase;
 
 	const float* phase0 = phase(stateBase, stateHistoryStride, cycle);// current
 	float* phase1 = phase(stateBase, stateHistoryStride, cycle+1);    // next
@@ -108,22 +107,20 @@ cpu_update_neurons(
 	std::vector<float> sourcePhase;
 
 	for(unsigned n=start; n < end; n++) {
-		float h = 0.05;	
+
 		const float f = frequency[n];
 		float targetPhase = phase0[n];
 
 		const unsigned indegree = loadIncoming(rcm, n, cycle, stateBase, stateHistoryStride, weight, sourcePhase);
-		float Cmean = g_Cmean[n] > 0 ?  g_Cmean[n] : 1;
-		
 
-		float k0 = f + (sumN(weight, sourcePhase, indegree, targetPhase          )/Cmean);
-		float k1 = f + (sumN(weight, sourcePhase, indegree, targetPhase+k0*0.5f*h)/Cmean);
-		float k2 = f + (sumN(weight, sourcePhase, indegree, targetPhase+k1*0.5f*h)/Cmean);
-		float k3 = f + (sumN(weight, sourcePhase, indegree, targetPhase+k2*h     )/Cmean);
+		float k0 = f + sumN(weight, sourcePhase, indegree, targetPhase        );
+		float k1 = f + sumN(weight, sourcePhase, indegree, targetPhase+k0*0.5f);
+		float k2 = f + sumN(weight, sourcePhase, indegree, targetPhase+k1*0.5f);
+		float k3 = f + sumN(weight, sourcePhase, indegree, targetPhase+k2     );
 
 		//! \todo ensure neuron is valid
 		//! \todo use precomputed factor and multiply
-		targetPhase += h*(k0 + 2*k1 + 2*k2 + k3)/6.0f;
+		targetPhase += (k0 + 2*k1 + 2*k2 + k3)/6.0f;
 		phase1[n] = fmodf(targetPhase, 2.0f*M_PI) + (targetPhase < 0.0f ? 2.0f*M_PI: 0.0f);
 	}
 }

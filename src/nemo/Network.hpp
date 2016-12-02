@@ -21,15 +21,10 @@ namespace nemo {
 
 namespace mpi {
 	class Master;
-	class Mapper;
 }
 
 namespace network {
 	class NetworkImpl;
-
-	namespace programmatic {
-	class synapse_iterator;
-	}
 
 }
 
@@ -212,13 +207,10 @@ class NEMO_BASE_DLL_PUBLIC Network : public ReadableNetwork
 		/*! \copydoc nemo::network::Generator::maxDelay */
 		unsigned neuronCount() const;
 
-		long unsigned synapseCount() const;
-
 	private :
 
 		friend SimulationBackend* simulationBackend(const Network&, const Configuration&);
 		friend class nemo::mpi::Master;
-		friend class nemo::mpi::Mapper;
 
 		class network::NetworkImpl* m_impl;
 

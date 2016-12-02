@@ -14,7 +14,7 @@ namespace nemo {
 	 * inhibitory synapses are marked as static.
 	 */
 	namespace random {
-		nemo::Network* constructUniformRandom(unsigned ncount, unsigned scount, unsigned dmax, bool stdp);
+		nemo::Network* construct(unsigned ncount, unsigned scount, unsigned dmax, bool stdp);
 	}
 
 	namespace torus {
